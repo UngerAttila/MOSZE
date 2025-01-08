@@ -1,32 +1,47 @@
 using UnityEngine;
 
-public class MoveBullet : MonoBehaviour
+public class BulletControl : MonoBehaviour
 {
-    public Rigidbody2D bullet;
-    public float moveSpeed = 10.0f;
-    public float lifetime = 2f;
+    public float speed = 10f;
+    public float lifetime = 3f;
+    public GameObject bulletSpawn;
 
-    void Start()
+    private AudioManager audioManager;
+
+    void Awake()
     {
-
-        bullet = this.gameObject.GetComponent<Rigidbody2D>();
-    }
-
-    void Update()
-    {
-        bullet.linearVelocity = transform.up * moveSpeed;
+        // Find the AudioManager in the scene
+        GameObject audioManagerObject = GameObject.FindGameObjectWithTag("AudioManager");
+        if (audioManagerObject != null)
+        {
+            audioManager = audioManagerObject.GetComponent<AudioManager>();
+        }
+        else
+        {
+            Debug.LogWarning("AudioManager GameObject not found!");
+        }
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
- 
+        // Check if the bullet hits an enemy or a clone
         if (col.gameObject.name == "Enemy" || col.gameObject.name == "Enemy 1(Clone)")
         {
-  
+            // Play hit sound
+            if (audioManager != null)
+            {
+                audioManager.PlaySFX(audioManager.hit);
+            }
+            else
+            {
+                Debug.LogWarning("AudioManager is not assigned!");
+            }
+
+            // Deactivate the enemy
             col.gameObject.SetActive(false);
 
+            // Destroy the bullet
             Destroy(gameObject);
         }
-        Destroy(gameObject);
     }
 }
